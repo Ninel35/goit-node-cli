@@ -3,29 +3,31 @@ const path = require("node:path");
 
 const contactsPath = path.join(__dirname, "db", "contacts.json");
 
-async function listContacts() {
+async function readContacts() {
   const data = await fs.readFile(contactsPath, { encoding: "utf-8" });
 
-  return data;
+  return JSON.parse(data);
 }
 
 function writeContacts(contacts) {
-  console.log(contacts, typeof contacts);
-  return fs.writeFile(contactsPath, contacts);
+  return fs.writeFile(contactsPath, JSON.stringify(contacts, undefined, 2));
 }
 
-module.exports = {
-  listContacts,
-};
+async function listContacts() {
+  const contacts = await readContacts();
+  return contacts;
+}
 
-// async function getContactById(contactId) {
-//   // ...твій код. Повертає об'єкт контакту з таким id. Повертає null, якщо контакт з таким id не знайдений.
-// }
+async function getContactById(contactId) {
+  const contacts = await readContacts();
 
-// async function removeContact(contactId) {
-//   // ...твій код. Повертає об'єкт видаленого контакту. Повертає null, якщо контакт з таким id не знайдений.
-// }
-
+  const contact = contacts.find((contact) => contact.id === contactId);
+  return contact;
+}
 async function addContact(name, email, phone) {
-  // ...твій код. Повертає об'єкт доданого контакту (з id).
+  const contacts = await readContacts();
+  const contact = { name, email, phone };
+  contacts.push(contact);
+
+  await writeContacts(contacts);
 }
